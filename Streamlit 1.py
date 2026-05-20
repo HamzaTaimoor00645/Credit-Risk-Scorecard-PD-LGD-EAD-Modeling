@@ -1,4 +1,4 @@
-
+import streamlit as st  # 👈 FIXED: Added missing framework import
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -69,13 +69,15 @@ col1, col2, col3, col4 = st.columns(4)
 total_ead      = df_filtered['Total_EAD'].sum()
 total_baseline = df_filtered['Total_EL_Baseline'].sum()
 total_custom   = df_filtered['EL_Custom'].sum()
-el_change_pct  = ((total_custom - total_baseline) / total_baseline * 100)
+
+# Safe percentage calculation to avoid dividing by zero if user clears all grades
+el_change_pct = ((total_custom - total_baseline) / total_baseline * 100) if total_baseline > 0 else 0.0
 
 col1.metric("Total EAD",          f"${total_ead/1e9:.2f}B")
 col2.metric("Baseline EL",        f"${total_baseline/1e9:.2f}B")
 col3.metric("Stressed EL",        f"${total_custom/1e9:.2f}B",
             delta=f" +{el_change_pct:.1f}%", delta_color="inverse")
-col4.metric("EL / EAD Ratio",     f"{total_custom/total_ead*100:.2f}%")
+col4.metric("EL / EAD Ratio",     f"{total_custom/total_ead*100:.2f}%" if total_ead > 0 else "0.00%")
 
 st.divider()
 
